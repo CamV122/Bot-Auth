@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><title>Location Verify</title></head>
+<body>
+<h2>Click below to share your location for verification</h2>
+<button onclick="getLocation()">Share Location</button>
+<script>
+function getLocation() {
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+    await fetch('https://yourserver.com/location', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ latitude: lat, longitude: lon })
+    });
+    alert("Location sent!");
+  }, () => {
+    alert("Location access denied.");
+  });
+}
+</script>
+</body>
+</html>
